@@ -2,6 +2,9 @@ import csv
 import math
 import os
 from datetime import datetime
+import numpy as np
+import pandas as pd
+
 months = [
     "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
     "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
@@ -82,6 +85,80 @@ with open(log_file, "w", encoding="utf-8") as file:
     file.write("\nRejected Records:\n")
     for line_number, error in invalid_data:
         file.write(f"Line {line_number}: {error}\n")
+
+''' '''
+
+
+class MonsoonEpochAnalyzer:
+    def __init__(self):
+     self._data = None
+     self._spi = None
+
+    def load_from_csv(self, filepath: str = "data/processed/clean_kerala_monsoon.csv") -> None:
+     self._data = pd.read_csv(filepath)
+     self._spi = None
+
+    def compute_spi(self, window_years: int = 30, column: str = "ANNUAL") -> np.ndarray:
+     #Rolling window starts after 30 years
+     #The Annual Rainfall row is used to calculate the spi
+     if window_years <= 0:
+        raise ValueError("window_years must be greater than 0.")
+     if self._data is None:
+        raise RuntimeError("No data loaded. Call load_from_csv() first.")
+
+     values = self._data[column].to_numpy(dtype=float)
+     #Temp means temporary here , not temprature
+     spi_temp = []
+
+     for i in range(len(values)):
+        if i < window_years - 1:
+         spi_temp.append(np.nan)
+         continue
+
+        window = values[i - window_years + 1 : i + 1]
+
+        mean = np.mean(window)
+        std = np.std(window)
+
+        if std == 0:
+         spi_temp.append(0.0)
+        else:
+         spi_temp.append((values[i] - mean) / std)
+
+     self._spi = np.array(spi_temp, dtype=float)
+     return self._spi.copy()
+
+    def summary_report(self, column: str = "ANNUAL") -> str:
+     if self._data is None:
+        return "No data loaded."
+
+     values = self._data[column]
+     total_rain = values.sum()
+     mean_rain = values.mean()
+     std_rain = values.std()
+
+     lines = [
+        "=== Monsoon Epoch Summary Report ===",
+        f"Years Covered : {int(self._data['YEAR'].min())} - {int(self._data['YEAR'].max())} ({len(self._data)} records)",
+        f"Total Rainfall: {total_rain:.2f} mm",
+        f"Mean Rainfall : {mean_rain:.2f} mm",
+        f"Std Deviation : {std_rain:.2f} mm",
+        ]
+
+     if self._spi is not None:
+        lines.append(f"Mean SPI      : {np.nanmean(self._spi):.4f}")
+        lines.append(f"Min / Max SPI : {np.nanmin(self._spi):.4f} / {np.nanmax(self._spi):.4f}")
+     else:
+        lines.append("SPI           : Not computed yet (call compute_spi())")
+
+     return "\n".join(lines)
+
+
+if __name__ == "__main__":
+    analyzer = MonsoonEpochAnalyzer()
+    analyzer.load_from_csv("data/processed/clean_kerala_monsoon.csv")
+    spi = analyzer.compute_spi(window_years=30)
+    print(analyzer.summary_report())
 
 
 
