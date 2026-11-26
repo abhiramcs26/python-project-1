@@ -1,0 +1,31 @@
+KERALA MONSOON ANALYSIS RESULTS
+================================
+
+Years Covered:1901-2017
+Total Records:117
+
+Average Annual Rainfall:2914.26 mm
+Annual Rainfall Standard Deviation:430.30mm
+
+WETTEST YEAR
+Year:1961
+Rainfall:4257.90mm
+
+DRIEST YEAR
+Year:2016
+Rainfall:1870.80mm
+
+HIGHEST SW MONSOON RAINFALL
+Year:1924
+Rainfall:3451.30 mm
+
+LOWEST SW MONSOON RAINFALL
+Year:1918
+Rainfall:1104.20mm
+
+TOP FIVE WETTEST MONTHS
+1924-JUL : 1526.50 mm
+1968-JUL : 1308.90 mm
+1902-JUL : 1205.00 mm
+1931-AUG : 1199.20 mm
+1959-JUL : 1155.70 mm
